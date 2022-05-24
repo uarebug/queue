@@ -2,7 +2,7 @@ package queue
 
 import (
 	"container/heap"
-	"fmt"
+	"errors"
 )
 
 type Queue interface {
@@ -59,7 +59,7 @@ func (q *queue) Pop() (x interface{}) {
 // Enqueue enqueue
 func (q *queue) Enqueue(i Item) error {
 	if q.Len() >= q.maxLength {
-		return fmt.Errorf("队列已满，请稍后再试")
+		return errors.New("the queue is full")
 	}
 
 	if q.Len() == 0 && len(q.c) == 0 {
