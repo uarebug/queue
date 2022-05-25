@@ -3,6 +3,7 @@ package queue
 import (
 	"container/heap"
 	"errors"
+	"sync"
 )
 
 type Queue interface {
@@ -15,6 +16,7 @@ type queue struct {
 	items     []Item
 	c         chan Item
 	maxLength int
+	lock      sync.RWMutex
 }
 
 func NewQueue(maxQueueLength int) Queue {
@@ -26,7 +28,9 @@ func NewQueue(maxQueueLength int) Queue {
 
 // implement heap.Interface
 
-func (q queue) Len() int {
+func (q *queue) Len() int {
+	q.lock.RLock()
+	defer q.lock.RUnlock()
 	if q.items == nil {
 		return 0
 	}
@@ -34,20 +38,29 @@ func (q queue) Len() int {
 	return len(q.items)
 }
 
-func (q queue) Swap(i, j int) {
+func (q *queue) Swap(i, j int) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
 	q.items[i], q.items[j] = q.items[j], q.items[i]
 }
 
-func (q queue) Less(i, j int) bool {
+func (q *queue) Less(i, j int) bool {
+	q.lock.RLock()
+	defer q.lock.RUnlock()
 	return q.items[i].Value() >= q.items[j].Value()
 }
 
 func (q *queue) Push(h interface{}) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
 	q.items = append(q.items, h.(Item))
 }
 
 func (q *queue) Pop() (x interface{}) {
-	n := len(q.items)
+	n := q.Len()
+	q.lock.Lock()
+	defer q.lock.Unlock()
+
 	x = (q.items)[n-1]
 	q.items = q.items[:n-1]
 
