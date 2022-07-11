@@ -10,13 +10,15 @@ type Queue interface {
 	Enqueue(i Item) error
 
 	Dequeue() (i Item)
+
+	Length() int
 }
 
 type queue struct {
 	items     []Item
 	c         chan Item
 	maxLength int
-	lock      sync.RWMutex
+	lock      sync.Mutex
 }
 
 func NewQueue(maxQueueLength int) Queue {
@@ -29,8 +31,8 @@ func NewQueue(maxQueueLength int) Queue {
 // implement heap.Interface
 
 func (q *queue) Len() int {
-	q.lock.RLock()
-	defer q.lock.RUnlock()
+	q.lock.Lock()
+	defer q.lock.Unlock()
 	if q.items == nil {
 		return 0
 	}
@@ -45,8 +47,8 @@ func (q *queue) Swap(i, j int) {
 }
 
 func (q *queue) Less(i, j int) bool {
-	q.lock.RLock()
-	defer q.lock.RUnlock()
+	q.lock.Lock()
+	defer q.lock.Unlock()
 	return q.items[i].Value() >= q.items[j].Value()
 }
 
@@ -91,4 +93,8 @@ func (q *queue) Dequeue() (i Item) {
 	}
 
 	return <-q.c
+}
+
+func (q *queue) Length() int {
+	return q.Len()
 }
