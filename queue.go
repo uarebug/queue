@@ -96,5 +96,5 @@ func (q *queue) Dequeue() (i Item) {
 }
 
 func (q *queue) Length() int {
-	return q.Len()
+	return q.Len() + len(q.c)
 }
