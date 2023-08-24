@@ -16,6 +16,10 @@ func (t *TestItem) Value() int {
 	return t.value
 }
 
+func (t *TestItem) Identify() string {
+	return t.name
+}
+
 func TestQueue_Length(t *testing.T) {
 	q := NewQueue(1000)
 	for i := 0; i < 100; i++ {

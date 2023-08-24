@@ -1,6 +1,6 @@
 package queue
 
 type Item interface {
-	ID() string
+	Identify() string
 	Value() int // get priority of Item
 }
