@@ -14,6 +14,8 @@ type Queue interface {
 
 	Length() int
 
+	Peek() Item
+
 	Range(f func(key, value interface{}) bool)
 }
 
@@ -100,6 +102,14 @@ func (q *queue) Dequeue() Item {
 
 func (q *queue) Length() int {
 	return q.Len() + len(q.c)
+}
+
+func (q *queue) Peek() Item {
+	if q.Len() > 0 {
+		return q.items[0]
+	}
+
+	return <-q.c
 }
 
 func (q *queue) Range(f func(key, value interface{}) bool) {
