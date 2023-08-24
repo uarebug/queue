@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"testing"
 )
@@ -28,4 +29,14 @@ func TestQueue_Length(t *testing.T) {
 	if q.Length() != 100 {
 		t.Fail()
 	}
+
+	q.Range(func(_, v interface{}) bool {
+		item, ok := v.(Item)
+		if !ok {
+			return false
+		} else {
+			log.Println(item.Value())
+		}
+		return true
+	})
 }

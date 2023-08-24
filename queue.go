@@ -3,15 +3,18 @@ package queue
 import (
 	"container/heap"
 	"errors"
+	"sort"
 	"sync"
 )
 
 type Queue interface {
 	Enqueue(i Item) error
 
-	Dequeue() (i Item)
+	Dequeue() Item
 
 	Length() int
+
+	Range(f func(key, value interface{}) bool)
 }
 
 type queue struct {
@@ -87,7 +90,7 @@ func (q *queue) Enqueue(i Item) error {
 }
 
 // Dequeue dequeue
-func (q *queue) Dequeue() (i Item) {
+func (q *queue) Dequeue() Item {
 	if q.Len() > 0 {
 		return heap.Pop(q).(Item)
 	}
@@ -97,4 +100,22 @@ func (q *queue) Dequeue() (i Item) {
 
 func (q *queue) Length() int {
 	return q.Len() + len(q.c)
+}
+
+func (q *queue) Range(f func(key, value interface{}) bool) {
+	q.lock.Lock()
+	defer q.lock.Unlock()
+
+	items := make([]Item, len(q.items))
+	copy(items, q.items)
+
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].Value() > items[j].Value()
+	})
+
+	for k, v := range items {
+		if !f(k, v) {
+			break
+		}
+	}
 }
