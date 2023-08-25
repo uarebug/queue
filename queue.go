@@ -12,6 +12,8 @@ type Queue interface {
 
 	Dequeue() Item
 
+	DequeueSync() Item
+
 	Length() int
 
 	Peek() Item
@@ -100,6 +102,14 @@ func (q *queue) Dequeue() Item {
 	return <-q.c
 }
 
+func (q *queue) DequeueSync() Item {
+	if q.Len() > 0 {
+		return heap.Pop(q).(Item)
+	}
+
+	return nil
+}
+
 func (q *queue) Length() int {
 	return q.Len() + len(q.c)
 }
@@ -109,7 +119,7 @@ func (q *queue) Peek() Item {
 		return q.items[0]
 	}
 
-	return <-q.c
+	return nil
 }
 
 func (q *queue) Range(f func(key, value interface{}) bool) {
