@@ -10,9 +10,9 @@ import (
 type Queue interface {
 	Enqueue(i Item) error
 
-	Dequeue() Item
+	DequeueBlock() Item
 
-	DequeueSync() Item
+	Dequeue() Item
 
 	Length() int
 
@@ -93,8 +93,8 @@ func (q *queue) Enqueue(i Item) error {
 	return nil
 }
 
-// Dequeue dequeue
-func (q *queue) Dequeue() Item {
+// DequeueBlock dequeue
+func (q *queue) DequeueBlock() Item {
 	if q.Len() > 0 {
 		return heap.Pop(q).(Item)
 	}
@@ -102,7 +102,7 @@ func (q *queue) Dequeue() Item {
 	return <-q.c
 }
 
-func (q *queue) DequeueSync() Item {
+func (q *queue) Dequeue() Item {
 	if q.Len() > 0 {
 		return heap.Pop(q).(Item)
 	}
